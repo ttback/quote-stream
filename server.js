@@ -27,7 +27,7 @@
 ////
 // CONFIGURATION SETTINGS
 ///
-var PORT = 4000;
+var PORT = process.env.PORT;
 var FETCH_INTERVAL = 5000;
 var PRETTY_PRINT_JSON = true;
 
@@ -44,7 +44,7 @@ var io = io.listen(server);
 io.set('log level', 1);
 
 server.listen(PORT);
-
+console.log("Server on Port: "+PORT);
 var ticker = "";
 app.get('/:ticker', function(req, res) {
 	ticker = req.params.ticker;
@@ -52,6 +52,7 @@ app.get('/:ticker', function(req, res) {
 });
 
 io.sockets.on('connection', function(socket) {
+    console.log("reached");
 	var local_ticker = ticker;
 	ticker = "";
 
@@ -74,6 +75,7 @@ function get_quote(p_socket, p_ticker) {
 		port: 80,
 		path: '/finance/info?client=ig&q=' + p_ticker
 	}, function(response) {
+        console.log(response);
 		response.setEncoding('utf8');
 		var data = "";
 					
@@ -97,7 +99,7 @@ function get_quote(p_socket, p_ticker) {
 				quote.change_percent = data_object[0].cp;
 				quote.last_trade_time = data_object[0].lt;
 				quote.dividend = data_object[0].div;
-				quote.yield = data_object[0].yld;
+				quote.stockYield = data_object[0].yld;
 				
 				p_socket.emit('quote', PRETTY_PRINT_JSON ? JSON.stringify(quote, true, '\t') : JSON.stringify(quote));
 			}
